@@ -1,4 +1,5 @@
 from pandas import read_csv,Series,DataFrame,to_datetime,TimeGrouper,concat,rolling_mean
+from sklearn.preprocessing import scale
 from sklearn.preprocessing import StandardScaler
 from scipy.stats import boxcox,multivariate_normal
 from numpy import ones,log
@@ -15,9 +16,9 @@ import matplotlib.pyplot as plt
 matplotlib.style.use('ggplot')
 
 
+site = 'https://www.hackerearth.com/challenge/hiring/einsite-data-science-hiring-challenge/problems/9d09a02921e54cbdb0ed5ae27b7f7007/'
 
-
-
+numerical_features = ['tolls_amount', 'tip_amount', 'mta_tax', 'passenger_count', 'surcharge']
 
 
 
@@ -32,6 +33,14 @@ def train_validate_test_split(df, train_percent=.9, validate_percent=.05, seed=N
     :param validate_percent: 
     :param seed: 
     :return: 
+    '''
+
+    '''
+    Use of this instead of the code below : 
+    
+    from sklearn.cross_validation import train_test_split
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    
     '''
     np.random.seed(seed)
     perm = np.random.permutation(df.index)
@@ -52,23 +61,60 @@ def featurePreparation(df):
     :return: 
     
     Steps : 
-    1. View the Data.
-    2. Split into categorical and numeric data
-    3. Summary of the features
-    4. Find missing values
-    5. Do something about missing values
-    6. Correlations
-    7. Distribution - CoxBox
-    8. Create new features
+    - View the Data.
+    - Split into categorical and numeric data
+    - Summary of the features
+    - Scaling and normalise
+    - Find missing values
+    - Do something about missing values
+    - Correlations
+    - Distribution - CoxBox
+    - Create new features
     
-    incorporate this : https://github.com/Mzkarim/Exploratory-Data-Analysis-in-Python/blob/master/Exploratory%20Data%20Anlysis%20in%20Python/Exploratory%20Analysis%20in%20Python%20Using%20Pandas.ipynb
+    Read this : http://radimrehurek.com/data_science_python/
     
+    http://shahramabyari.com/2015/12/30/my-first-attempt-with-local-outlier-factorlof-identifying-density-based-local-outliers/
+    http://scikit-learn.org/dev/modules/generated/sklearn.neighbors.LocalOutlierFactor.html#sklearn.neighbors.LocalOutlierFactor
+    http://scikit-learn.org/dev/auto_examples/neighbors/plot_lof.html
+    
+    
+    read about this : https://mail.google.com/mail/u/0/?shva=1#inbox/15c38ef65090f7e7
+    
+    Read This :
+    
+    Three part series: 
+    
+    https://www.datacamp.com/community/tutorials/preprocessing-in-data-science-part-1-centering-scaling-and-knn#gs.Yi7mSxU
+    https://www.datacamp.com/community/tutorials/preprocessing-in-data-science-part-2-centering-scaling-and-logistic-regression#gs.ZK02b2M
+    https://www.datacamp.com/community/tutorials/preprocessing-in-data-science-part-3-scaling-synthesized-data#gs.6esUNyM
+    
+    
+    https://www.datacamp.com/community/tutorials/exploratory-data-analysis-python#gs.OgCRcQ8
+    
+    http://datascienceguide.github.io/exploratory-data-analysis
     '''
 
 
 
     print(df.head())
     print(df.describe())
+
+
+    #split data into numeric data.
+    features = df[numerical_features]
+
+    #Boxplot view of data
+    features.boxplot()
+    locs, labels = plt.xticks()
+    plt.setp(labels, rotation=90)
+    plt.show()
+
+
+    #View the histogram to consider distribution transformation.
+    df.hist()
+    plt.show()
+
+
     '''
     print(features.describe())
     features.boxplot()
