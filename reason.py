@@ -8,7 +8,7 @@ from matplotlib import pyplot
 import numpy as np
 from scipy import stats
 from sklearn import model_selection, preprocessing
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.metrics import f1_score
 import csv
 import matplotlib
@@ -19,6 +19,8 @@ matplotlib.style.use('ggplot')
 site = 'https://www.hackerearth.com/challenge/hiring/einsite-data-science-hiring-challenge/problems/9d09a02921e54cbdb0ed5ae27b7f7007/'
 
 numerical_features = ['tolls_amount', 'tip_amount', 'mta_tax', 'passenger_count', 'surcharge']
+numerical_features_withResposne = ['tolls_amount', 'tip_amount', 'mta_tax', 'passenger_count', 'surcharge', 'fare_amount']
+
 
 
 
@@ -66,6 +68,8 @@ def featurePreparation(df):
     - Summary of the features
     - Scaling and normalise
     - Find missing values
+    - Binning (Numeric to Categorical)
+    - Encoding
     - Do something about missing values
     - Correlations
     - Distribution - CoxBox
@@ -92,12 +96,19 @@ def featurePreparation(df):
     https://www.datacamp.com/community/tutorials/exploratory-data-analysis-python#gs.OgCRcQ8
     
     http://datascienceguide.github.io/exploratory-data-analysis
+
+    outlier detection mentioned here :
+
+    http://blog.yhat.com/posts/detecting-outlier-car-prices-on-the-web.html
+    http://napitupulu-jon.appspot.com/posts/outliers-ud120.html
+
+    use regression model to fit and then comparing with orignial values.
     '''
+    features = df[numerical_features]
 
 
-
-    print(df.head())
-    print(df.describe())
+    print(features.head())
+    print(features.describe())
 
 
     #split data into numeric data.
@@ -111,8 +122,19 @@ def featurePreparation(df):
 
 
     #View the histogram to consider distribution transformation.
-    df.hist()
+    features.hist()
     plt.show()
+
+
+
+    '''
+    check for anomalies in data before outlier detection, ex NaN infinity values, missing values etc
+    fix that issue.
+
+
+    '''
+    response = df.drop(['fare_amount'], 1)
+    outlierDetection(features,response)
 
 
     '''
@@ -149,8 +171,15 @@ def featurePreparation(df):
 
     #return transformedFeatures
 
-def outlierDetection():
-    pass
+def outlierDetection(df, response):
+    LR = LinearRegression().fit(df, response)
+    trainingErrs = abs(LR.predict(df) - response)
+
+    outlierIdx = trainingErrs >= np.percentile(trainingErrs, 95)
+    plt.scatter(df.tip_amount, response, c=(0, 0, 1), marker='s')
+    plt.scatter(df.tip_amount[outlierIdx], response[outlierIdx], c=(1, 0, 0), marker='s')
+    plt.show()
+
 
 
 
@@ -162,7 +191,6 @@ def workflow(df):
 def main():
     dfTrain = read_csv("train.csv", header=0)
     dfTest = read_csv("test.csv", header=0)
-
 
 
     workflow(dfTrain)
