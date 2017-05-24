@@ -172,6 +172,7 @@ def featurePreparation(df):
     #return transformedFeatures
 
 def outlierDetection(df, response):
+
     LR = LinearRegression().fit(df, response)
     trainingErrs = abs(LR.predict(df) - response)
 
@@ -180,7 +181,11 @@ def outlierDetection(df, response):
     plt.scatter(df.tip_amount[outlierIdx], response[outlierIdx], c=(1, 0, 0), marker='s')
     plt.show()
 
+    '''
+    reference : http://blog.yhat.com/posts/detecting-outlier-car-prices-on-the-web.html
 
+    also implement this : http://scikit-learn.org/stable/modules/outlier_detection.html?utm_source=yhathq&utm_medium=blog&utm_content=textlink&utm_campaign=outlierdetection#id1
+    '''
 
 
 
