@@ -13,9 +13,10 @@ from sklearn.metrics import f1_score
 import csv
 import matplotlib
 import matplotlib.pyplot as plt
+import seaborn as sns
 matplotlib.style.use('ggplot')
 
-
+color = sns.color_palette()
 site = 'https://www.hackerearth.com/challenge/hiring/einsite-data-science-hiring-challenge/problems/9d09a02921e54cbdb0ed5ae27b7f7007/'
 
 numerical_features = ['tolls_amount', 'tip_amount', 'mta_tax', 'passenger_count', 'surcharge']
@@ -96,6 +97,10 @@ def featurePreparation(df):
     https://www.datacamp.com/community/tutorials/exploratory-data-analysis-python#gs.OgCRcQ8
     
     http://datascienceguide.github.io/exploratory-data-analysis
+    
+    
+    refer to this : https://www.kaggle.com/sudalairajkumar/simple-exploration-notebook-zillow-prize
+    
 
     outlier detection mentioned here :
 
@@ -115,16 +120,111 @@ def featurePreparation(df):
     features = df[numerical_features]
 
     #Boxplot view of data
-    features.boxplot()
-    locs, labels = plt.xticks()
-    plt.setp(labels, rotation=90)
-    plt.show()
+    #features.boxplot()
+    #locs, labels = plt.xticks()
+    #plt.setp(labels, rotation=90)
+    #plt.show()
 
 
     #View the histogram to consider distribution transformation.
-    features.hist()
+    #features.hist()
+    #plt.show()
+
+    # Check for datatypes of the featuers
+    dtype_df = features.dtypes.reset_index()
+    dtype_df.columns = ["Count", "Column Type"]
+    print(dtype_df)
+
+    # Finc count of missing values
+    missing_df = features.isnull().sum(axis = 0).reset_index()
+    missing_df.columns = ['column_name', 'missing_count']
+    missing_df = missing_df.ix[missing_df['missing_count'] > 0]
+    missing_df = missing_df.sort_values(by='missing_count')
+    print(missing_df)
+
+    # Show missing value count
+    ind = np.arange(missing_df.shape[0])
+    width = 0.9
+    fig, ax = plt.subplots(figsize=(12, 18))
+    rects = ax.barh(ind, missing_df.missing_count.values, color='blue')
+    ax.set_yticks(ind)
+    ax.set_yticklabels(missing_df.column_name.values, rotation='horizontal')
+    ax.set_xlabel("Count of missing values")
+    ax.set_title("Number of missing values in each column")
+    #plt.show()
+
+    # Show percentage of missing values
+    missing_df = features.isnull().sum(axis=0).reset_index()
+    missing_df.columns = ['column_name', 'missing_count']
+    missing_df['missing_ratio'] = (missing_df['missing_count'] * 100) / features.shape[0]
+    print(missing_df)
+
+
+
+    #Tip amount has a lot missing values, more than 99% hence remove it.
+    features = features.drop(['tip_amount'],1);
+    #features = features.drop(['surcharge'], 1);
+    mean_values = features.mean(axis=0)
+    features = features.fillna(mean_values, inplace=True)
+
+    #Univaraite Analysis
+
+    # Now let us look at the correlation coefficient of each of these variables with the target value
+    # Variables that are highly correlated to the response can be considered as important features
+
+
+
+    #x_cols = [col for col in train_df_new.columns if col not in ['logerror'] if train_df_new[col].dtype=='float64']
+    x_cols = [col for col in features.columns]
+
+    labels = []
+    values = []
+    for col in x_cols:
+        labels.append(col)
+        values.append(np.corrcoef(features[col].values, df['fare_amount'].values)[0, 1])
+    corr_df = DataFrame({'col_labels': labels, 'corr_values': values})
+    corr_df = corr_df.sort_values(by='corr_values')
+
+    ind = np.arange(len(labels))
+    width = 0.9
+    fig, ax = plt.subplots(figsize=(12, 40))
+    rects = ax.barh(ind, np.array(corr_df.corr_values.values), color='y')
+    ax.set_yticks(ind)
+    ax.set_yticklabels(corr_df.col_labels.values, rotation='horizontal')
+    ax.set_xlabel("Correlation coefficient")
+    ax.set_title("Correlation coefficient of the variables")
+    # autolabel(rects)
+    #plt.show()
+
+
+    # Check the correlation among values that are important features.
+    corr_df_sel = corr_df.ix[(corr_df['corr_values'] > 0.02) | (corr_df['corr_values'] < -0.01)]
+    print(corr_df_sel)
+
+    cols_to_use = corr_df_sel.col_labels.tolist()
+
+    temp_df = features[cols_to_use]
+    corrmat = temp_df.corr(method='spearman')
+    f, ax = plt.subplots(figsize=(8, 8))
+
+    # Draw the heatmap using seaborn
+    sns.heatmap(corrmat, vmax=1., square=True)
+    plt.title("Important variables correlation map", fontsize=15)
     plt.show()
 
+
+    '''
+    Next Steps To Do:
+    
+    - Create the new feature called distance
+    - Try plotting the x y co-ordinates to a get a feel of the clusters 
+    -  Add categorical variables
+        - It's analysis
+        - Generation of new features.
+    - Spot Check with algorithms
+    
+    
+    '''
 
 
     '''
@@ -133,8 +233,8 @@ def featurePreparation(df):
 
 
     '''
-    response = df.drop(['fare_amount'], 1)
-    outlierDetection(features,response)
+    response = df['fare_amount']
+    #outlierDetection(features,response)
 
 
     '''
@@ -177,9 +277,10 @@ def outlierDetection(df, response):
     trainingErrs = abs(LR.predict(df) - response)
 
     outlierIdx = trainingErrs >= np.percentile(trainingErrs, 95)
-    plt.scatter(df.tip_amount, response, c=(0, 0, 1), marker='s')
-    plt.scatter(df.tip_amount[outlierIdx], response[outlierIdx], c=(1, 0, 0), marker='s')
-    plt.show()
+    print(outlierIdx)
+    plt.scatter(df.tolls_amount, response, c=(0, 0, 1), marker='s')
+    plt.scatter(df.tolls_amount[outlierIdx], response[outlierIdx], c=(1, 0, 0), marker='s')
+    #plt.show()
 
     '''
     reference : http://blog.yhat.com/posts/detecting-outlier-car-prices-on-the-web.html
