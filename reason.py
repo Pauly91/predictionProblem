@@ -164,6 +164,8 @@ def featurePreparation(df):
     #Tip amount has a lot missing values, more than 99% hence remove it.
     features = features.drop(['tip_amount'],1);
     #features = features.drop(['surcharge'], 1);
+
+    # Point of doing this is questionable
     mean_values = features.mean(axis=0)
     features = features.fillna(mean_values, inplace=True)
 
@@ -214,8 +216,38 @@ def featurePreparation(df):
 
 
     '''
+
+    build a proper workflow referring to zillowww notebook
+
     Next Steps To Do:
-    
+
+
+    - check the relation between these higly correlared features individually
+    I.e individual analysis of features could be done after the above analysis as
+    number of features to analyed goes down
+
+
+    - use of this :
+
+    We had an understanding of important variables from the univariate analysis.
+    But this is on a stand alone basis and also we have linearity assumption.
+    Now let us build a non-linear model to get the important variables by building Extra Trees model.
+
+    - read this : “Relative Importance of Predictor Variables” of the book The Elements of Statistical Learning: Data Mining, Inference, and Prediction, page 367.
+
+    Refer these websites :
+    http://machinelearningmastery.com/feature-importance-and-feature-selection-with-xgboost-in-python/
+    https://stats.stackexchange.com/questions/162162/relative-variable-importance-for-boosting
+    https://www.analyticsvidhya.com/blog/2016/12/introduction-to-feature-selection-methods-with-an-example-or-how-to-select-the-right-variables/
+
+    read this 3 part series:
+
+    http://blog.datadive.net/selecting-good-features-part-i-univariate-selection/
+    http://blog.datadive.net/selecting-good-features-part-ii-linear-models-and-regularization/
+    http://blog.datadive.net/selecting-good-features-part-iii-random-forests/
+
+
+    Steps to add
     - Create the new feature called distance
     - Try plotting the x y co-ordinates to a get a feel of the clusters 
     -  Add categorical variables
