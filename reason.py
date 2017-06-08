@@ -177,6 +177,13 @@ def featurePreparation(df):
 
 
     #x_cols = [col for col in train_df_new.columns if col not in ['logerror'] if train_df_new[col].dtype=='float64']
+
+    '''
+    
+    Problem with pearson correlation analysis is that it is defined for linear relationship. Even if a direct relationshi[
+    which is non-linear exisit the value can be close to zero hence cannot assume that there is not relationship
+    
+    '''
     x_cols = [col for col in features.columns]
 
     labels = []
@@ -247,6 +254,40 @@ def featurePreparation(df):
     http://blog.datadive.net/selecting-good-features-part-iii-random-forests/
 
 
+    inferences from the above blog : 
+    
+    1) univariate feature selection : 
+        - Pearson's Correlation.
+            :   Problem with pearson correlation analysis is that it is defined for linear relationship. 
+                Even if a direct relationshi which is non-linear exisit the value can be close to zero 
+                hence cannot assume that there is not relationship
+        - Maximum Information Coefficiant 
+        - Distance Correlation
+        
+      conclusion :  Univariate feature selection is in general best to get a better understanding of the data, 
+                    its structure and characteristics. It can work for selecting top features for model improvement 
+                    in some settings, but since it is unable to remove redundancy (for example selecting only the best 
+                    feature among a subset of strongly correlated features), this task is better left for other methods.   
+    
+    2) Selecting good models using linear models and regularization 
+        - They are again linear models, but unlike univaraite analysis account for effect of other featuers on the response
+        - But if lot data are actually correlated then small changes in data can actually cause signficant changes to the
+          model making it unpreditable - mulitcollinearity problem, 
+        - Use of regularization 
+        
+        
+        conclussion : Regularized linear models are a powerful set of tool for feature interpretation and selection. 
+                      Lasso produces sparse solutions and as such is very useful selecting a strong subset of features 
+                      for improving model performance. Ridge regression on the other hand can be used for data interpretation
+                       due to its stability and the fact that useful features tend to have non-zero coefficients. Since 
+                       the relationship between the response variable and features in often non-linear, basis expansion 
+                       can be used to convert features into a mo
+        
+     3) Random Forest Approaches
+        
+          read   http://blog.datadive.net/selecting-good-features-part-iii-random-forests/
+
+        
     Steps to add
     - Create the new feature called distance
     - Try plotting the x y co-ordinates to a get a feel of the clusters 
@@ -254,6 +295,10 @@ def featurePreparation(df):
         - It's analysis
         - Generation of new features.
     - Spot Check with algorithms
+    
+    
+    learn about p and f scores
+    and anova
     
     
     '''
